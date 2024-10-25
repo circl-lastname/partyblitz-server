@@ -1,0 +1,23 @@
+{
+  "name": "partyblitz-server",
+  "version": "1.0.0",
+  "description": "The backend for Partyblitz",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/circl-lastname/partyblitz-server.git"
+  },
+  "author": "circl-lastname",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/circl-lastname/partyblitz-server/issues"
+  },
+  "homepage": "https://github.com/circl-lastname/partyblitz-server#readme",
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
