@@ -4,6 +4,7 @@ let server = new WebSocketServer({ port: 6256 });
 
 const HANDSHAKE = 0;
 const CONNECTED = 1;
+const SUPERSEDED = 2;
 
 const sessions = {};
 
@@ -38,10 +39,11 @@ function createNewSession(socket) {
   socket.sessionID = generateSessionID();
   
   sessions[socket.sessionID] = {
+    socket: socket,
     playerData: { username: "RandomGamer" },
     state: "mainMenu",
     playerStateData: {},
-    game: undefined
+    room: undefined
   };
   
   socket.send(JSON.stringify({
@@ -59,9 +61,19 @@ function handleHandshakePacket(socket, packet) {
       createNewSession(socket);
     break;
     case "resumeSession": {
+      if (typeof packet.id != "string") {
+        return;
+      }
+      
       let session = sessions[packet.id];
       
       if (session) {
+        if (session.socket) {
+          session.socket.state = SUPERSEDED;
+          session.socket.close();
+        }
+        
+        session.socket = socket;
         socket.sessionID = packet.id;
         
         socket.send(JSON.stringify({
