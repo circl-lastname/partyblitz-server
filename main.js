@@ -70,7 +70,10 @@ function handleHandshakePacket(socket, packet) {
       if (session) {
         if (session.socket) {
           session.socket.state = DISABLED;
-          session.socket.close();
+          session.socket.send(JSON.stringify({
+            type: "disable"
+          }));
+          session.socket.close(1000);
         }
         
         session.socket = socket;
