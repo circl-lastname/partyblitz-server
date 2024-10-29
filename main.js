@@ -4,7 +4,7 @@ let server = new WebSocketServer({ port: 6256 });
 
 const HANDSHAKE = 0;
 const CONNECTED = 1;
-const SUPERSEDED = 2;
+const DISABLED = 2;
 
 const sessions = {};
 
@@ -69,7 +69,7 @@ function handleHandshakePacket(socket, packet) {
       
       if (session) {
         if (session.socket) {
-          session.socket.state = SUPERSEDED;
+          session.socket.state = DISABLED;
           session.socket.close();
         }
         
@@ -111,6 +111,12 @@ server.on("connection", (socket) => {
       case HANDSHAKE:
         handleHandshakePacket(socket, packet);
       break;
+    }
+  });
+  
+  socket.on("close", () => {
+    if (socket.state == CONNECTED) {
+      sessions[socket.sessionID].socket = undefined;
     }
   });
   
