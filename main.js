@@ -94,8 +94,15 @@ function handleHandshakePacket(socket, packet) {
 }
 
 server.on("connection", (socket) => {
+  function closeSocket() {
+    // "Timeout" close code
+    socket.close(3008);
+  }
+  
   socket.state = HANDSHAKE;
   socket.sessionID = "";
+  
+  socket.timeout = setTimeout(closeSocket, 3*60*1000);
   
   socket.on("message", (data) => {
     let packet;
@@ -106,7 +113,13 @@ server.on("connection", (socket) => {
       return;
     }
     
-    if (typeof packet != "object") {
+    if (typeof packet != "object" && typeof packet.type != "string") {
+      return;
+    }
+    
+    if (packet.type == "keepAlive") {
+      clearTimeout(socket.timeout);
+      socket.timeout = setTimeout(closeSocket, 3*60*1000);
       return;
     }
     
