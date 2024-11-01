@@ -102,7 +102,7 @@ server.on("connection", (socket) => {
   socket.state = HANDSHAKE;
   socket.sessionID = "";
   
-  socket.timeout = setTimeout(closeSocket, 3*60*1000);
+  socket.timeout = setTimeout(closeSocket, 2*60*1000);
   
   socket.on("message", (data) => {
     let packet;
@@ -119,7 +119,7 @@ server.on("connection", (socket) => {
     
     if (packet.type == "keepAlive") {
       clearTimeout(socket.timeout);
-      socket.timeout = setTimeout(closeSocket, 3*60*1000);
+      socket.timeout = setTimeout(closeSocket, 2*60*1000);
       return;
     }
     
