@@ -10,11 +10,13 @@ const DISABLED = 2;
 const sessions = {};
 
 function generateSessionID() {
+  const chars = "0123456789abcdef";
+  
   while (true) {
     let id = "";
     
-    for (let i = 0; i < 16; i++) {
-      id += Math.floor(Math.random() * 256).toString(16).padStart(2, "0");
+    for (let i = 0; i < 32; i++) {
+      id += chars[Math.floor(Math.random() * 16)];
     }
     
     if (!sessions[id]) {
