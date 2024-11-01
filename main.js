@@ -1,4 +1,5 @@
 import { WebSocketServer } from "ws";
+import { generateUsername } from "./username.js";
 
 let server = new WebSocketServer({ port: 6256 });
 
@@ -51,7 +52,7 @@ function createNewSession(socket) {
   sessions[sessionID] = {
     socket: socket,
     timeout: setTimeout(sessionTimeoutFunction, 5*60*1000),
-    playerData: { username: "RandomGamer" },
+    playerData: { username: generateUsername() },
     state: "mainMenu",
     playerStateData: {},
     room: undefined
