@@ -35,11 +35,22 @@ function sendFullUpdate(socket) {
   socket.send(JSON.stringify(packet));
 }
 
+function removeSession(id) {
+  // TODO: Remove from room
+  sessions[id] = undefined;
+}
+
 function createNewSession(socket) {
-  socket.sessionID = generateSessionID();
+  let sessionID = generateSessionID();
+  socket.sessionID = sessionID;
   
-  sessions[socket.sessionID] = {
+  function sessionTimeoutFunction() {
+    removeSession(sessionID);
+  }
+  
+  sessions[sessionID] = {
     socket: socket,
+    timeout: setTimeout(sessionTimeoutFunction, 5*60*1000),
     playerData: { username: "RandomGamer" },
     state: "mainMenu",
     playerStateData: {},
@@ -48,7 +59,7 @@ function createNewSession(socket) {
   
   socket.send(JSON.stringify({
     type: "session",
-    id: socket.sessionID
+    id: sessionID
   }));
   
   socket.state = CONNECTED;
@@ -65,7 +76,8 @@ function handleHandshakePacket(socket, packet) {
         return;
       }
       
-      let session = sessions[packet.id];
+      let sessionID = packet.id;
+      let session = sessions[sessionID];
       
       if (session) {
         if (session.socket) {
@@ -76,12 +88,19 @@ function handleHandshakePacket(socket, packet) {
           session.socket.close(1000);
         }
         
+        function sessionTimeoutFunction() {
+          removeSession(sessionID);
+        }
+        
+        clearTimeout(session.timeout);
+        session.timeout = setTimeout(sessionTimeoutFunction, 5*60*1000);
+        
         session.socket = socket;
-        socket.sessionID = packet.id;
+        socket.sessionID = sessionID;
         
         socket.send(JSON.stringify({
           type: "session",
-          id: socket.sessionID
+          id: sessionID
         }));
         
         socket.state = CONNECTED;
@@ -120,6 +139,16 @@ server.on("connection", (socket) => {
     if (packet.type == "keepAlive") {
       clearTimeout(socket.timeout);
       socket.timeout = setTimeout(closeSocket, 2*60*1000);
+      
+      let sessionID = socket.sessionID;
+      let session = sessions[sessionID];
+      
+      function sessionTimeoutFunction() {
+        removeSession(sessionID);
+      }
+      
+      clearTimeout(session.timeout);
+      session.timeout = setTimeout(sessionTimeoutFunction, 5*60*1000);
       return;
     }
     
