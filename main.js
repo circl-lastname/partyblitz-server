@@ -53,7 +53,7 @@ function createNewSession(socket) {
   
   sessions[sessionID] = {
     socket: socket,
-    timeout: setTimeout(sessionTimeoutFunction, 5*60*1000),
+    timeout: setTimeout(sessionTimeoutFunction, 4*60*1000),
     playerData: { username: generateUsername() },
     state: "mainMenu",
     playerStateData: {},
@@ -96,7 +96,7 @@ function handleHandshakePacket(socket, packet) {
         }
         
         clearTimeout(session.timeout);
-        session.timeout = setTimeout(sessionTimeoutFunction, 5*60*1000);
+        session.timeout = setTimeout(sessionTimeoutFunction, 4*60*1000);
         
         session.socket = socket;
         socket.sessionID = sessionID;
@@ -151,7 +151,7 @@ server.on("connection", (socket) => {
       }
       
       clearTimeout(session.timeout);
-      session.timeout = setTimeout(sessionTimeoutFunction, 5*60*1000);
+      session.timeout = setTimeout(sessionTimeoutFunction, 4*60*1000);
       return;
     }
     
