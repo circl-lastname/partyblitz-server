@@ -1,4 +1,5 @@
 import { WebSocketServer } from "ws";
+import { lobbyManager } from "./lobby.js";
 import { generateUsername } from "./username.js";
 
 let server = new WebSocketServer({ port: 6256 });
@@ -25,27 +26,16 @@ function generateSessionID() {
   }
 }
 
-function sendFullUpdate(socket) {
-  let session = sessions[socket.sessionID];
-  
-  let packet = {
-    type: "update",
-    playerData: session.playerData,
-    state: session.state,
-    playerStateData: session.playerStateData
-  };
-  
-  socket.send(JSON.stringify(packet));
-}
-
 function removeSession(id) {
-  // TODO: Remove from room
+  // TODO: Remove from lobby
   sessions[id] = undefined;
 }
 
 function createNewSession(socket) {
   let sessionID = generateSessionID();
   socket.sessionID = sessionID;
+  
+  let lobby = lobbyManager.create("mainMenu");
   
   function sessionTimeoutFunction() {
     removeSession(sessionID);
@@ -55,9 +45,7 @@ function createNewSession(socket) {
     socket: socket,
     timeout: setTimeout(sessionTimeoutFunction, 4*60*1000),
     playerData: { username: generateUsername() },
-    state: "mainMenu",
-    playerStateData: {},
-    room: undefined
+    lobby: lobby
   };
   
   socket.send(JSON.stringify({
@@ -66,7 +54,8 @@ function createNewSession(socket) {
   }));
   
   socket.state = CONNECTED;
-  sendFullUpdate(socket);
+  
+  lobbyManager.addPlayer(lobby, sessions[sessionID], true);
 }
 
 function handleHandshakePacket(socket, packet) {
@@ -107,7 +96,8 @@ function handleHandshakePacket(socket, packet) {
         }));
         
         socket.state = CONNECTED;
-        sendFullUpdate(socket);
+        
+        lobbyManager.sendFullUpdate(session.lobby, session, true);
       } else {
         createNewSession(socket);
       }

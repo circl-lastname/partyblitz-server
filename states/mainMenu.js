@@ -1,0 +1,5 @@
+const mainMenu = {};
+
+
+
+export { mainMenu };
