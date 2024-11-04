@@ -105,6 +105,16 @@ function handleHandshakePacket(socket, packet) {
   }
 }
 
+function handlePacket(socket, packet) {
+  let session = sessions[socket.sessionID];
+  
+  switch (packet.type) {
+    case "call":
+      lobbyManager.call(session.lobby, session, packet.state, packet.name, packet.argument);
+    break;
+  }
+}
+
 server.on("connection", (socket) => {
   function closeSocket() {
     // "Timeout" close code
@@ -148,6 +158,9 @@ server.on("connection", (socket) => {
     switch (socket.state) {
       case HANDSHAKE:
         handleHandshakePacket(socket, packet);
+      break;
+      case CONNECTED:
+        handlePacket(socket, packet);
       break;
     }
   });
