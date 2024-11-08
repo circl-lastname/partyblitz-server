@@ -27,6 +27,16 @@ lobbyManager.addPlayer = function (lobby, session, sendPlayerData = false) {
   this.sendFullUpdate(lobby, session, sendPlayerData);
 };
 
+lobbyManager.call = function (lobby, session, state, name, argument) {
+  if (lobby.state != state || typeof name != "string") {
+    return;
+  }
+  
+  if (states[lobby.state].calls[name]) {
+    states[lobby.state].calls[name](lobby, session, argument);
+  }
+};
+
 lobbyManager.sendUpdate = function (lobby, session, playerDataKeys, stateDataKeys, playerStateDataKeys) {
   let packet = {
     type: "update"
@@ -72,16 +82,6 @@ lobbyManager.sendFullUpdate = function (lobby, session, sendPlayerData = false) 
   }
   
   session.socket.send(JSON.stringify(packet));
-};
-
-lobbyManager.call = function (lobby, session, state, name, argument) {
-  if (lobby.state != state || typeof name != "string") {
-    return;
-  }
-  
-  if (states[lobby.state].calls[name]) {
-    states[lobby.state].calls[name](lobby, session, argument);
-  }
 };
 
 export { lobbyManager };
