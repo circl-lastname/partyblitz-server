@@ -7,4 +7,12 @@ function generateUsername() {
          usernames.animals[Math.floor(Math.random() * usernames.animals.length)];
 }
 
-export { generateUsername };
+function checkUsername(username) {
+  if (username.length <= 16 && !(/\s/g.test(username))) {
+    return true;
+  }
+  
+  return false;
+}
+
+export { generateUsername, checkUsername };

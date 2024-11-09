@@ -1,4 +1,5 @@
 import { lobbyManager } from "../lobby.js";
+import { checkUsername } from "../username.js";
 
 const mainMenu = {};
 mainMenu.calls = {};
@@ -8,7 +9,7 @@ mainMenu.calls.setUsername = function (lobby, session, argument) {
     return;
   }
   
-  if (argument.length <= 16) {
+  if (checkUsername(argument)) {
     session.playerData.username = argument;
     lobbyManager.sendUpdate(lobby, session, [ "username" ], [], []);
   }

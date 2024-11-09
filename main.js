@@ -1,6 +1,6 @@
 import { WebSocketServer } from "ws";
 import { lobbyManager } from "./lobby.js";
-import { generateUsername } from "./username.js";
+import { generateUsername, checkUsername } from "./username.js";
 
 let server = new WebSocketServer({ port: 6256 });
 
@@ -31,8 +31,10 @@ function removeSession(id) {
   sessions[id] = undefined;
 }
 
-function createNewSession(socket) {
+function createNewSession(socket, packet) {
   let sessionID = generateSessionID();
+  sessions[sessionID] = {};
+  let session = sessions[sessionID];
   socket.sessionID = sessionID;
   
   let lobby = lobbyManager.create("mainMenu");
@@ -41,12 +43,16 @@ function createNewSession(socket) {
     removeSession(sessionID);
   }
   
-  sessions[sessionID] = {
-    socket: socket,
-    timeout: setTimeout(sessionTimeoutFunction, 4*60*1000),
-    playerData: { username: generateUsername() },
-    lobby: lobby
-  };
+  session.socket = socket;
+  session.timeout = setTimeout(sessionTimeoutFunction, 4*60*1000);
+  session.playerData = {};
+  session.lobby = lobby;
+  
+  if (typeof packet.username == "string" && checkUsername(packet.username)) {
+    session.playerData.username = packet.username;
+  } else {
+    session.playerData.username = generateUsername();
+  }
   
   socket.send(JSON.stringify({
     type: "session",
@@ -55,13 +61,13 @@ function createNewSession(socket) {
   
   socket.state = CONNECTED;
   
-  lobbyManager.addPlayer(lobby, sessions[sessionID], true);
+  lobbyManager.addPlayer(lobby, session, true);
 }
 
 function handleHandshakePacket(socket, packet) {
   switch (packet.type) {
     case "newSession":
-      createNewSession(socket);
+      createNewSession(socket, packet);
     break;
     case "resumeSession": {
       if (typeof packet.id != "string") {
@@ -99,7 +105,7 @@ function handleHandshakePacket(socket, packet) {
         
         lobbyManager.sendFullUpdate(session.lobby, session, true);
       } else {
-        createNewSession(socket);
+        createNewSession(socket, packet);
       }
     } break;
   }
