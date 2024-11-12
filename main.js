@@ -56,6 +56,8 @@ function createNewSession(socket, packet) {
     } else {
       session.playerData.username = generateUsername();
     }
+  } else {
+    session.playerData.username = generateUsername();
   }
   
   socket.send(JSON.stringify({
