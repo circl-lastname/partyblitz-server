@@ -8,7 +8,7 @@ function generateUsername() {
 }
 
 function checkUsername(username) {
-  if (username.length <= 16) {
+  if (username.length >= 1 && username.length <= 16) {
     return true;
   }
   
