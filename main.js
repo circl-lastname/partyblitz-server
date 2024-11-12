@@ -48,10 +48,14 @@ function createNewSession(socket, packet) {
   session.playerData = {};
   session.lobby = lobby;
   
-  if (typeof packet.username == "string" && checkUsername(packet.username)) {
-    session.playerData.username = packet.username;
-  } else {
-    session.playerData.username = generateUsername();
+  if (typeof packet.username == "string") {
+    let username = packet.username.trim();
+    
+    if (checkUsername(username)) {
+      session.playerData.username = username;
+    } else {
+      session.playerData.username = generateUsername();
+    }
   }
   
   socket.send(JSON.stringify({
