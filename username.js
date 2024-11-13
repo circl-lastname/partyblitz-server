@@ -7,9 +7,11 @@ function generateUsername() {
          usernames.animals[Math.floor(Math.random() * usernames.animals.length)];
 }
 
-function checkUsername(username) {
+function checkUsername(candidate) {
+  let username = candidate.trim().replace(/\s+/g, " ");
+  
   if (username.length >= 1 && username.length <= 16) {
-    return true;
+    return username;
   }
   
   return false;

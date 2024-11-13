@@ -9,9 +9,9 @@ mainMenu.calls.setUsername = function (lobby, session, argument) {
     return;
   }
   
-  let username = argument.trim();
+  let username = checkUsername(argument);
   
-  if (checkUsername(username)) {
+  if (username) {
     session.playerData.username = username;
     lobbyManager.sendUpdate(lobby, session, [ "username" ], [], []);
   }

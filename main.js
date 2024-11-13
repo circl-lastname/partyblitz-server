@@ -49,9 +49,9 @@ function createNewSession(socket, packet) {
   session.lobby = lobby;
   
   if (typeof packet.username == "string") {
-    let username = packet.username.trim();
+    let username = checkUsername(packet.username);
     
-    if (checkUsername(username)) {
+    if (username) {
       session.playerData.username = username;
     } else {
       session.playerData.username = generateUsername();
