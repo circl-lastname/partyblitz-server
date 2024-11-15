@@ -27,6 +27,14 @@ lobbyManager.addPlayer = function (lobby, session, sendPlayerData = false) {
   this.sendFullUpdate(lobby, session, sendPlayerData);
 };
 
+lobbyManager.removePlayer = function (lobby, session) {
+  if (states[lobby.state].removePlayer) {
+    states[lobby.state].removePlayer(lobby, session);
+  }
+  
+  lobby.players.splice(lobby.players.indexOf(session), 1);
+};
+
 lobbyManager.call = function (lobby, session, state, name, argument) {
   if (lobby.state != state || typeof name != "string") {
     return;
@@ -67,7 +75,7 @@ lobbyManager.sendUpdate = function (lobby, session, playerDataKeys, stateDataKey
   }
   
   session.socket.send(JSON.stringify(packet));
-}
+};
 
 lobbyManager.sendFullUpdate = function (lobby, session, sendPlayerData = false) {
   let packet = {

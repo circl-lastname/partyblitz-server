@@ -27,7 +27,12 @@ function generateSessionID() {
 }
 
 function removeSession(id) {
-  // TODO: Remove from lobby
+  let session = sessions[id];
+  
+  if (session.lobby) {
+    lobbyManager.removePlayer(session.lobby, session);
+  }
+  
   sessions[id] = undefined;
 }
 
