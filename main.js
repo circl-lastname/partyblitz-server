@@ -26,14 +26,16 @@ function generateSessionID() {
   }
 }
 
-function removeSession(id) {
-  let session = sessions[id];
-  
-  if (session.lobby) {
-    lobbyManager.removePlayer(session.lobby, session);
-  }
-  
-  sessions[id] = undefined;
+function removeSessionFunction(id) {
+  return () => {
+    let session = sessions[id];
+    
+    if (session.lobby) {
+      lobbyManager.removePlayer(session.lobby, session);
+    }
+    
+    sessions[id] = undefined;
+  };
 }
 
 function createNewSession(socket, packet) {
@@ -44,12 +46,8 @@ function createNewSession(socket, packet) {
   
   let lobby = lobbyManager.create("mainMenu");
   
-  function sessionTimeoutFunction() {
-    removeSession(sessionID);
-  }
-  
   session.socket = socket;
-  session.timeout = setTimeout(sessionTimeoutFunction, 4*60*1000);
+  session.timeout = setTimeout(removeSessionFunction(sessionID), 4*60*1000);
   session.playerData = {};
   session.lobby = lobby;
   
@@ -97,12 +95,8 @@ function handleHandshakePacket(socket, packet) {
           session.socket.close(1000);
         }
         
-        function sessionTimeoutFunction() {
-          removeSession(sessionID);
-        }
-        
         clearTimeout(session.timeout);
-        session.timeout = setTimeout(sessionTimeoutFunction, 4*60*1000);
+        session.timeout = setTimeout(removeSessionFunction(sessionID), 4*60*1000);
         
         session.socket = socket;
         socket.sessionID = sessionID;
@@ -163,12 +157,8 @@ server.on("connection", (socket) => {
       let sessionID = socket.sessionID;
       let session = sessions[sessionID];
       
-      function sessionTimeoutFunction() {
-        removeSession(sessionID);
-      }
-      
       clearTimeout(session.timeout);
-      session.timeout = setTimeout(sessionTimeoutFunction, 4*60*1000);
+      session.timeout = setTimeout(removeSessionFunction(sessionID), 4*60*1000);
       return;
     }
     
